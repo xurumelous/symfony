@@ -49,6 +49,7 @@ class ServerStartCommand extends ServerCommand
                 new InputArgument('addressport', InputArgument::OPTIONAL, 'The address to listen to (can be address:port, address, or port)'),
                 new InputOption('docroot', 'd', InputOption::VALUE_REQUIRED, 'Document root'),
                 new InputOption('router', 'r', InputOption::VALUE_REQUIRED, 'Path to custom router script'),
+                new InputOption('cli-setting', 'c', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Custom php cli setting'),
                 new InputOption('pidfile', null, InputOption::VALUE_REQUIRED, 'PID file'),
             ))
             ->setDescription('Starts a local web server in the background')
@@ -73,6 +74,10 @@ Use the <info>--docroot</info> option to change the default docroot directory:
 Specify your own router script via the <info>--router</info> option:
 
   <info>php %command.full_name% --router=app/config/router.php</info>
+
+Define custom php cli settings with the <info>--cli-setting</info> option:
+
+  <info>%command.full_name% --cli-setting='xdebug.remote_port=9001' --cli-setting='xdebug.idekey=CUSTOM'</info>
 
 See also: http://www.php.net/manual/en/features.commandline.webserver.php
 EOF
@@ -139,7 +144,7 @@ EOF
                 return 1;
             }
 
-            $config = new WebServerConfig($documentRoot, $env, $input->getArgument('addressport'), $input->getOption('router'));
+            $config = new WebServerConfig($documentRoot, $env, $input->getArgument('addressport'), $input->getOption('router'), $input->getOption('cli-setting'));
 
             if (WebServer::STARTED === $server->start($config, $input->getOption('pidfile'))) {
                 $io->success(sprintf('Server listening on http://%s', $config->getAddress()));
